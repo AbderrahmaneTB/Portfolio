@@ -1,21 +1,29 @@
-import { Navbar } from "@/components/navbar"
+import { Contact } from "@/components/contact"
+import { Experience } from "@/components/experience"
 import { Hero } from "@/components/hero"
-import { About } from "@/components/about"
-import { Skills } from "@/components/skills"
+import { IntroProvider } from "@/components/intro"
+import { Marquee } from "@/components/marquee"
 import { Projects } from "@/components/projects"
-import { Footer } from "@/components/footer"
+import { RevealObserver } from "@/components/reveal-observer"
+import { SiteNav } from "@/components/site-nav"
+import { Skills } from "@/components/skills"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground">
-      <Navbar />
-      <main>
+    <IntroProvider>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
+      <SiteNav />
+      <main id="main">
         <Hero />
-        <About />
-        <Skills />
+        <Marquee />
+        <Experience />
         <Projects />
+        <Skills />
+        <Contact />
       </main>
-      <Footer />
-    </div>
+      <RevealObserver />
+    </IntroProvider>
   )
 }

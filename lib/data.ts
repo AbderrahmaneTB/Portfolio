@@ -64,7 +64,7 @@ export const competitions: Competition[] = [
     rank: 1,
     event: "SynapseON Datathon",
     short: "SynapseON",
-    teaser: "Track B winner",
+    teaser: "Winner, radar track",
     host: "IEEE AESS Student Branch Chapter. Track B, time–frequency. Team Attention.",
     date: "Oct 2026",
     dateTime: "2026-10",
@@ -86,7 +86,7 @@ export const competitions: Competition[] = [
     rank: 2,
     event: "Financial Stress Prediction Challenge",
     short: "Zindi",
-    teaser: "Private leaderboard",
+    teaser: "Financial stress prediction",
     host: "Zindi, September 2026 edition",
     date: "Sep 2026",
     dateTime: "2026-09",
@@ -157,6 +157,19 @@ export const competitions: Competition[] = [
   },
 ]
 
+// The fields behind the results and projects on this page, shown in the band under the hero
+export const topics = [
+  "Radar signal classification",
+  "Traffic-signal control",
+  "Financial stress prediction",
+  "Breast cancer detection",
+  "River forecasting",
+  "AI-text detection",
+  "Language models",
+  "Wi-Fi indoor positioning",
+  "Full-stack products",
+]
+
 export type Role = { title: string; org: string; description: string }
 
 export const roles: Role[] = [
@@ -193,14 +206,6 @@ export const chowkpilot = {
   ],
 }
 
-export const radarProject = {
-  name: "Radar modulation classifier",
-  badge: "SynapseON, Track B winner",
-  description:
-    "Tells apart seven radar modulation schemes from over-the-air recordings made on UCL’s ARESTOR RFSoC platform. Track B models read time–frequency views of the I/Q signal and must stay accurate as noise climbs to −30 dB SNR.",
-  links: [{ label: "Challenge repository", href: "https://github.com/UCLRadarGroup/Radar_ML_lite" }],
-}
-
 export const stressProject = {
   name: "Financial stress prediction",
   badge: "Zindi, 2nd place",
@@ -209,6 +214,58 @@ export const stressProject = {
   stack: ["Python", "LightGBM", "pandas", "SciPy", "scikit-learn"],
   links: [
     { label: "Read the solution", href: "https://github.com/AbderrahmaneTB/financial-stress-prediction-2nd-place" },
+  ],
+}
+
+export type LlmProject = {
+  name: string
+  /** Model size, the number a reader compares first */
+  size: { value: string; label: string }
+  description: string
+  specs: { label: string; value: string }[]
+  stack: string[]
+  links: Link[]
+}
+
+// Two language models built with Wael at llm-lab-dz. Every figure comes from the repositories' READMEs;
+// the from-scratch model publishes no benchmark scores, so none are shown for it.
+export const llmLab: { name: string; context: string; projects: LlmProject[] } = {
+  name: "Language models",
+  context: "Two projects at llm-lab-dz, built with Wael: one model trained from zero, one adapted from a 3B base.",
+  projects: [
+    {
+      name: "A GPT built from scratch",
+      size: { value: "98M", label: "parameters, trained from zero" },
+      description:
+        "Every stage of a small language model: its own byte-level BPE tokenizer, a pipeline that streams about a billion tokens without filling memory, a transformer and training loop in plain PyTorch, and a Gradio chat. Training on Kaggle’s free GPUs picks up after each 12-hour session from checkpoints on the Hugging Face Hub.",
+      specs: [
+        { label: "Layers × heads", value: "12 × 12" },
+        { label: "Hidden size", value: "768" },
+        { label: "Context", value: "512 tokens" },
+        { label: "Vocabulary", value: "16,000 BPE" },
+        { label: "Training data", value: "≈1B tokens" },
+      ],
+      stack: ["PyTorch", "tokenizers", "Hugging Face Hub", "Gradio"],
+      links: [{ label: "Code", href: "https://github.com/llm-lab-dz/llm-from-scratch" }],
+    },
+    {
+      name: "Qwen2.5-3B, fine-tuned with QLoRA",
+      size: { value: "3B", label: "parameters, adapted on two free GPUs" },
+      description:
+        "A chat model adapted on two 16 GB T4s. The base model is loaded in 4-bit and LoRA trains every attention and MLP projection, on a cleaned 10,000-conversation sample of UltraChat. Training resumes from its own checkpoints, and the adapter is public on Hugging Face.",
+      specs: [
+        { label: "Quantization", value: "4-bit NF4" },
+        { label: "LoRA", value: "r 16, 7 projections" },
+        { label: "Hardware", value: "2 × T4, 16 GB each" },
+        { label: "Training", value: "1,091 steps, 1 epoch" },
+        { label: "Validation perplexity", value: "3.32" },
+      ],
+      stack: ["PyTorch", "Transformers", "PEFT", "TRL", "bitsandbytes"],
+      links: [
+        { label: "Code", href: "https://github.com/llm-lab-dz/LLM-FineTune" },
+        { label: "Adapter on Hugging Face", href: "https://huggingface.co/llm-lab-dz/qwen-3b-qlora-ultrachat" },
+      ],
+    },
   ],
 }
 
@@ -251,7 +308,7 @@ export const webProjects: WebProject[] = [
 ]
 
 export type SkillIcon =
-  | "pytorch" | "tensorflow" | "scikitlearn" | "lightgbm" | "pandas" | "numpy" | "scipy"
+  | "pytorch" | "huggingface" | "tensorflow" | "scikitlearn" | "lightgbm" | "pandas" | "numpy" | "scipy"
   | "nextjs" | "react" | "nodejs" | "express" | "django" | "fastapi"
   | "postgresql" | "mysql" | "mongodb" | "docker"
   | "python" | "typescript" | "javascript" | "c" | "figma"
@@ -265,6 +322,7 @@ export const skills: SkillGroup[] = [
     ring: 0,
     items: [
       { name: "PyTorch", icon: "pytorch" },
+      { name: "Hugging Face", icon: "huggingface" },
       { name: "TensorFlow", icon: "tensorflow" },
       { name: "scikit-learn", icon: "scikitlearn" },
       { name: "LightGBM", icon: "lightgbm" },

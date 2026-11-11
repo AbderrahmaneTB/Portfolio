@@ -1,72 +1,139 @@
 "use client"
 
-import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useState } from "react"
-import { useIntroDone } from "@/components/intro"
-import { motionOn, useMotionOn } from "@/components/motion"
+import { Fragment, useEffect, useRef, useState } from "react"
+import { useIntro } from "@/components/intro"
+import { useMotionOn } from "@/components/motion"
 
-const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const LOWER = "abcdefghijklmnopqrstuvwxyz"
-
-function noiseChar(ch: string) {
-  if (ch === " ") return " "
-  const set = ch === ch.toUpperCase() ? UPPER : LOWER
-  return set[(Math.random() * set.length) | 0]
-}
-
-
-/** Text that resolves out of random letters, left to right, once the intro is done. */
-export function DecodeText({
+/**
+ * A line of display text whose letters rise out of a blur, one after another, when the intro ends.
+ * Splitting text into spans drops the font's pair kerning and breaks a clipped gradient, so both
+ * are measured and restored: each letter gets its kerning back as a margin, and its own slice
+ * of one gradient that spans the whole line.
+ * The letters are hidden from assistive tech; give the parent heading an aria-label.
+ */
+export function LetterReveal({
   text,
-  className,
+  className = "",
+  gradient = false,
   delay = 0,
-  duration = 1200,
 }: {
   text: string
   className?: string
+  /** Paint the line with the heat gradient */
+  gradient?: boolean
+  /** Milliseconds after the intro before the first letter moves */
   delay?: number
-  duration?: number
 }) {
-  const done = useIntroDone()
-  const [out, setOut] = useState(text)
+  const ref = useRef<HTMLSpanElement>(null)
+  const { done, played } = useIntro()
+  const [measured, setMeasured] = useState(false)
 
   useEffect(() => {
-    if (!done || !motionOn()) return
-    const chars = [...text]
-    let raf = 0
-    const start = performance.now() + delay
-    const tick = (now: number) => {
-      const p = (now - start) / duration
-      if (p >= 1) {
-        setOut(text)
-        return
-      }
-      setOut(chars.map((ch, i) => (p > 0.25 + (i / chars.length) * 0.75 ? ch : noiseChar(ch))).join(""))
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [done, text, delay, duration])
+    const line = ref.current
+    if (!line) return
+    const letters = [...line.querySelectorAll<HTMLElement>("[data-ch]")]
 
-  // Server HTML holds the real text; give the parent element an aria-label so assistive tech
-  // reads the name rather than the scrambled frames.
-  return <span className={className}>{out}</span>
+    // Measured on a hidden, untransformed copy, so it is exact even while letters are mid-animation
+    const kern = () => {
+      const range = document.createRange()
+      for (const word of line.querySelectorAll<HTMLElement>("[data-word]")) {
+        const chars = [...word.querySelectorAll<HTMLElement>("[data-ch]")]
+        const probe = document.createElement("span")
+        probe.style.cssText = "position:absolute;left:0;top:0;visibility:hidden;white-space:pre"
+        word.appendChild(probe)
+        const em = parseFloat(getComputedStyle(word).fontSize)
+        // Width of each letter on its own, which is how the split spans sit
+        const solo = chars.map((c) => {
+          probe.textContent = c.textContent
+          return probe.getBoundingClientRect().width
+        })
+        // Pen position of each letter when the whole word is set as one kerned run
+        probe.textContent = chars.map((c) => c.textContent).join("")
+        const node = probe.firstChild as Text
+        const origin = probe.getBoundingClientRect().left
+        const pen = chars.map((_, i) => {
+          range.setStart(node, i)
+          range.setEnd(node, i + 1)
+          return range.getBoundingClientRect().left - origin
+        })
+        chars.forEach((c, i) => {
+          const adjust = i > 0 ? pen[i] - pen[i - 1] - solo[i - 1] : 0
+          c.style.marginLeft = Math.abs(adjust) > 0.3 ? `${(adjust / em).toFixed(4)}em` : ""
+        })
+        probe.remove()
+      }
+    }
+
+    const paint = () => {
+      if (!gradient) return
+      line.style.setProperty("--line-w", `${line.clientWidth}px`)
+      for (const c of letters) c.style.setProperty("--x", `${c.offsetLeft}px`)
+    }
+
+    const fit = () => {
+      kern()
+      paint()
+      setMeasured(true)
+    }
+    fit()
+    // Re-fit once the display font replaces its fallback
+    document.fonts?.ready.then(fit)
+    document.fonts?.addEventListener("loadingdone", fit)
+    const ro = new ResizeObserver(paint)
+    ro.observe(line)
+    return () => {
+      ro.disconnect()
+      document.fonts?.removeEventListener("loadingdone", fit)
+    }
+  }, [gradient, text])
+
+  let index = 0
+  return (
+    <span
+      ref={ref}
+      aria-hidden="true"
+      className={`name-line relative ${className}`}
+      data-gradient={gradient ? "" : undefined}
+      data-measured={measured ? "" : undefined}
+      data-play={done && played ? "" : undefined}
+      style={{ "--line-delay": `${delay}ms` } as React.CSSProperties}
+    >
+      {text.split(" ").map((word, w) => (
+        <Fragment key={w}>
+          {w > 0 && " "}
+          <span data-word className="inline-block whitespace-nowrap">
+            {[...word].map((ch) => {
+              const i = index++
+              return (
+                <span key={i} data-ch className="name-ch" style={{ "--i": i } as React.CSSProperties}>
+                  {ch}
+                </span>
+              )
+            })}
+          </span>
+        </Fragment>
+      ))}
+    </span>
+  )
 }
 
 const GREETINGS = ["Hello", "Salam", "Bonjour", "Azul"]
 
-/** Cycles greetings in English, Arabic, French and Tamazight, typed and erased. */
+/**
+ * Cycles the greeting in English, Arabic, French and Tamazight, typed and erased, without end.
+ * Typing a single word and stopping read as a stalled page, so it keeps going. With motion off it
+ * holds the current word. Screen readers get one plain "Hello".
+ */
 export function TypedGreeting() {
+  const on = useMotionOn()
   const [i, setI] = useState(0)
   const [n, setN] = useState(GREETINGS[0].length)
   const [deleting, setDeleting] = useState(false)
-  const on = useMotionOn()
 
   useEffect(() => {
     const word = GREETINGS[i]
     if (!on) {
-      // Hold the full word while animations are off
-      if (n !== word.length) {
+      if (n !== word.length || deleting) {
         const t = window.setTimeout(() => {
           setDeleting(false)
           setN(word.length)
@@ -94,39 +161,6 @@ export function TypedGreeting() {
         {GREETINGS[i].slice(0, n)}
         <span className="ml-0.5 inline-block h-[1em] w-[0.5ch] translate-y-[0.15em] animate-pulse bg-violet-soft" />
       </span>
-    </span>
-  )
-}
-
-const ROLES = ["machine learning enthusiast", "full-stack developer", "datathon winner", "Kaggle competitor"]
-
-/** Rotates through roles with a vertical slide. */
-export function RoleRotator() {
-  const [i, setI] = useState(0)
-  const on = useMotionOn()
-
-  useEffect(() => {
-    if (!on) return
-    const id = window.setInterval(() => setI((v) => (v + 1) % ROLES.length), 2600)
-    return () => window.clearInterval(id)
-  }, [on])
-
-  return (
-    <span className="relative -mb-[0.15em] inline-block overflow-hidden pb-[0.15em] align-bottom">
-      <span className="sr-only">machine learning enthusiast and full-stack developer</span>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={ROLES[i]}
-          aria-hidden="true"
-          initial={{ y: "110%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-110%", opacity: 0 }}
-          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-          className="heat-text inline-block whitespace-nowrap font-semibold"
-        >
-          {ROLES[i]}
-        </motion.span>
-      </AnimatePresence>
     </span>
   )
 }

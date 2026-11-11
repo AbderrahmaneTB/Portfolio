@@ -63,33 +63,31 @@ function RadarScope() {
 
 export function Skills() {
   return (
-    <section id="skills" aria-labelledby="skills-title" className="wrap py-28 md:py-36">
-      <div data-reveal className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="section-kicker">03 / Skills</p>
-          <h2 id="skills-title" className="section-title mt-4">
-            My toolkit, <span className="heat-text">on radar</span>
-          </h2>
-        </div>
+    <section id="skills" aria-labelledby="skills-title" className="wrap pt-28 md:pt-40">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <h2 id="skills-title" className="section-title">
+          My toolkit, on radar
+        </h2>
         <p className="max-w-sm text-muted">Machine learning sits at the centre. Web, data and design tools orbit around it.</p>
       </div>
 
       <div className="mt-14 grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
-        <div data-reveal className="lg:col-span-6">
+        <div className="lg:col-span-6">
           <RadarScope />
         </div>
         <div className="space-y-9 lg:col-span-6">
-          {skills.map((g, i) => (
-            <div key={g.group} data-reveal style={{ "--d": `${i * 120}ms` } as React.CSSProperties}>
-              <h3 className="flex items-baseline gap-3 font-display text-xl font-bold tracking-tight">
-                {g.group}
-                <span className="font-mono text-xs font-normal text-violet-soft">{RING_NAMES[g.ring]}</span>
-              </h3>
+          {skills.map((g) => (
+            <div key={g.group}>
+              {/* The ring is a note beside the heading, not part of it, so headings read cleanly in a screen reader's list */}
+              <div className="flex items-baseline gap-3">
+                <h3 className="font-display text-xl font-bold tracking-tight">{g.group}</h3>
+                <p className="text-sm text-muted">{RING_NAMES[g.ring]}</p>
+              </div>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {g.items.map((item) => (
                   <li
                     key={item.name}
-                    className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm transition-colors hover:border-white/25"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-raised px-3.5 py-2 text-sm"
                   >
                     <SkillIcon icon={item.icon} className="size-4" />
                     {item.name}

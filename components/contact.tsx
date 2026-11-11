@@ -1,83 +1,82 @@
 import { ArrowUpRight } from "lucide-react"
 import { CopyEmailButton } from "@/components/copy-email-button"
 import { ProfileIcon } from "@/components/icons"
-import { Magnetic, SpotlightCard } from "@/components/interactive"
+import { Magnetic } from "@/components/interactive"
 import { LocalTime } from "@/components/local-time"
 import { PodiumMark } from "@/components/podium-mark"
+import { SpectrogramField } from "@/components/spectrogram-field"
 import { profiles, site } from "@/lib/data"
 
 export function Contact() {
   return (
-    <section id="contact" aria-labelledby="contact-title" className="relative overflow-hidden pt-28 md:pt-36">
-      <div aria-hidden="true" className="absolute inset-x-0 top-1/3 -z-10 mx-auto h-[28rem] max-w-4xl rounded-full bg-[radial-gradient(closest-side,rgb(139_92_246/0.22),transparent)] blur-2xl" />
+    <section id="contact" aria-labelledby="contact-title" className="relative isolate overflow-hidden pt-28 md:pt-40">
+      {/* The page ends where it began, but the signal is locked: a cleaner field, and the cursor transmits */}
+      <SpectrogramField
+        noise={0.4}
+        locked
+        className="absolute inset-0 -z-10 h-full w-full opacity-80 blur-[1px] [mask-image:radial-gradient(ellipse_72%_62%_at_74%_34%,#000_24%,transparent_74%)] max-md:[mask-image:linear-gradient(to_bottom,transparent_30%,#000_55%,transparent_85%)]"
+      />
 
       <div className="wrap">
-        <div data-reveal>
-          <p className="section-kicker">04 / Contact</p>
-          <h2 id="contact-title" className="section-title mt-4 max-w-4xl">
-            Have a hard problem?
-            <br />
-            <span className="heat-text">Let’s find the signal.</span>
-          </h2>
-          <p className="mt-6 max-w-xl text-pretty text-lg text-muted">
-            Open to machine learning and full-stack internships, research collaborations and freelance projects.
-          </p>
-        </div>
+        <h2 id="contact-title" className="section-title max-w-4xl">
+          Have a hard problem?
+          <br />
+          Let’s find the signal.
+        </h2>
+        <p className="mt-6 max-w-xl text-lg text-muted">
+          Open to machine learning and full-stack internships, research collaborations and freelance projects.
+        </p>
 
-        <div data-reveal className="mt-10 flex flex-wrap items-center gap-3" style={{ "--d": "120ms" } as React.CSSProperties}>
+        <div className="mt-10 flex flex-wrap items-center gap-3">
           <Magnetic>
+            {/* On the narrowest phones the address still fits one line; if it ever has to wrap, it breaks after the @ */}
             <a
               href={`mailto:${site.email}`}
-              className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(100deg,#8b5cf6,#e0457b_55%,#ffb547)] max-w-full px-6 py-3.5 text-base font-semibold text-white wrap-anywhere sm:px-8 sm:py-4 sm:text-lg shadow-[0_12px_50px_-12px_rgb(224_69_123/0.8)]"
+              className="btn btn-signal btn-lg max-w-full wrap-anywhere max-[359px]:px-5 max-[359px]:text-[0.9375rem]"
             >
-              {site.email}
+              {site.email.split("@")[0]}@<wbr />
+              {site.email.split("@")[1]}
               <ArrowUpRight className="size-5" aria-hidden="true" />
             </a>
           </Magnetic>
-          <CopyEmailButton />
+          <CopyEmailButton variant="button" />
         </div>
+        <p className="motion-only mt-5 hidden font-mono text-xs text-muted [@media(pointer:fine)]:block">
+          SNR +30 dB, signal locked. Move your cursor over the field to transmit.
+        </p>
 
-        <ul className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {profiles.map((p, i) => (
-            <li key={p.name} data-reveal style={{ "--d": `${i * 80}ms` } as React.CSSProperties}>
-              <SpotlightCard className="rounded-[1.5rem]">
-                <a href={p.href} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between gap-3 p-5">
-                  <span className="flex min-w-0 items-center gap-3">
-                    <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/5 text-ink">
-                      <ProfileIcon name={p.name} className="size-[1.1rem]" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-semibold">{p.name}</span>
-                      <span className="block truncate text-sm text-muted">{p.handle}</span>
-                    </span>
-                  </span>
-                  <ArrowUpRight className="size-5 shrink-0 text-muted transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink" aria-hidden="true" />
-                </a>
-              </SpotlightCard>
+        <ul className="mt-14 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {profiles.map((p) => (
+            <li key={p.name}>
+              <a href={p.href} target="_blank" rel="noopener noreferrer" className="profile-link group">
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/5 text-ink">
+                  <ProfileIcon name={p.name} className="size-[1.1rem]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold">{p.name}</span>
+                  <span className="block text-sm break-words text-muted">{p.handle}</span>
+                </span>
+                <ArrowUpRight
+                  className="size-5 shrink-0 text-muted transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
+                  aria-hidden="true"
+                />
+              </a>
             </li>
           ))}
         </ul>
       </div>
 
-      <footer className="wrap mt-24 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-t border-line py-8 text-sm text-muted">
+      <footer className="wrap mt-24 flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-line py-6 text-sm text-muted">
         <p className="flex items-center gap-3">
           <PodiumMark className="size-5" />© {new Date().getFullYear()} {site.name}
         </p>
-        <p className="flex items-center gap-2">
-          <span className="live-dot" aria-hidden="true" />
+        <p>
           Algeria, local time <LocalTime />
         </p>
-        <a href="#home" className="underline decoration-white/20 underline-offset-4 hover:text-ink">
+        <a href="#home" className="text-link inline-flex min-h-11 items-center">
           Back to top
         </a>
       </footer>
-
-      <p
-        aria-hidden="true"
-        className="pointer-events-none -mb-[0.18em] text-center font-display text-[17vw] leading-none font-extrabold tracking-[-0.06em] text-white/[0.035] select-none"
-      >
-        Abderrahmane
-      </p>
     </section>
   )
 }

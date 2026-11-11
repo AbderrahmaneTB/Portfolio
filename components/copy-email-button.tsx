@@ -5,7 +5,8 @@ import { Check, Copy } from "lucide-react"
 import { site } from "@/lib/data"
 import { cn } from "@/lib/utils"
 
-export function CopyEmailButton({ className }: { className?: string }) {
+/** Copies the address. "glass" sits in the header bar; "button" pairs with a large button at the same height. */
+export function CopyEmailButton({ className, variant = "glass" }: { className?: string; variant?: "glass" | "button" }) {
   const [copied, setCopied] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -33,7 +34,9 @@ export function CopyEmailButton({ className }: { className?: string }) {
       type="button"
       onClick={copy}
       className={cn(
-        "glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-white/25",
+        variant === "button"
+          ? "btn btn-quiet btn-lg"
+          : "glass inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-white/25",
         className,
       )}
     >

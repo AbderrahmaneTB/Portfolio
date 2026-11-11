@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { buildMagmaLUT } from "@/components/colormap"
 import { useMotionOn } from "@/components/motion"
 
@@ -13,6 +13,7 @@ const H = 96
  */
 export function SnrDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const inputId = useId()
   const [snr, setSnr] = useState(30)
   const snrRef = useRef(30)
   const touched = useRef(false)
@@ -111,17 +112,22 @@ export function SnrDemo() {
           aria-hidden="true"
           className="block aspect-[7/4] w-full [image-rendering:auto]"
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3 font-mono text-[0.7rem] text-white/80">
-          <span className="rounded-full bg-black/50 px-2.5 py-1 backdrop-blur">SNR {label}</span>
-          <span className="rounded-full bg-black/50 px-2.5 py-1 backdrop-blur">{verdict}</span>
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-3 font-mono text-xs text-white/90">
+          <span className="rounded-full bg-black/60 px-2.5 py-1 tabular-nums">SNR {label}</span>
+          <span className="rounded-full bg-black/60 px-2.5 py-1">{verdict}</span>
         </div>
       </div>
-      <label className="mt-5 block">
-        <span className="flex items-baseline justify-between text-sm">
-          <span className="font-medium">Signal-to-noise ratio</span>
-          <span className="font-mono text-xs text-muted tabular-nums">{label}</span>
-        </span>
+      <div className="mt-5">
+        <div className="flex items-baseline justify-between text-sm">
+          <label htmlFor={inputId} className="font-medium">
+            Signal-to-noise ratio
+          </label>
+          <span aria-hidden="true" className="font-mono text-xs text-muted tabular-nums">
+            {label}
+          </span>
+        </div>
         <input
+          id={inputId}
           type="range"
           min={-30}
           max={30}
@@ -134,16 +140,16 @@ export function SnrDemo() {
           onPointerDown={() => {
             touched.current = true
           }}
-          className="mt-3 w-full accent-violet"
+          className="signal-range mt-1 w-full"
           aria-valuetext={`${label}, ${verdict}`}
         />
-        <span className="mt-1 flex justify-between font-mono text-[0.7rem] text-dim">
+        <div aria-hidden="true" className="flex justify-between font-mono text-xs text-muted">
           <span>−30 dB</span>
           <span>0</span>
           <span>+30 dB</span>
-        </span>
-      </label>
-      <figcaption className="mt-4 text-sm text-pretty text-dim">
+        </div>
+      </div>
+      <figcaption className="mt-4 text-sm text-muted">
         Drag to add noise. An illustration of what Track B models face: one chirp pulse, time across, frequency up. Not
         challenge data.
       </figcaption>

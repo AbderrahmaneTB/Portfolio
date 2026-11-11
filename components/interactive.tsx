@@ -3,7 +3,6 @@
 import { animate, motion, useMotionValue, useSpring } from "framer-motion"
 import { useEffect, useRef } from "react"
 import { motionOn, useMotionOn } from "@/components/motion"
-import { cn } from "@/lib/utils"
 
 const isMouse = (e: React.PointerEvent) => e.pointerType === "mouse" && motionOn()
 
@@ -33,32 +32,6 @@ export function Magnetic({ children, strength = 0.3 }: { children: React.ReactNo
     >
       {children}
     </motion.span>
-  )
-}
-
-/** A card whose border and surface light up where the pointer is. */
-export function SpotlightCard({
-  className,
-  children,
-  id,
-}: {
-  className?: string
-  children: React.ReactNode
-  id?: string
-}) {
-  return (
-    <div
-      id={id}
-      className={cn("spotlight", className)}
-      onPointerMove={(e) => {
-        const el = e.currentTarget
-        const r = el.getBoundingClientRect()
-        el.style.setProperty("--mx", `${e.clientX - r.left}px`)
-        el.style.setProperty("--my", `${e.clientY - r.top}px`)
-      }}
-    >
-      {children}
-    </div>
   )
 }
 

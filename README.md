@@ -15,8 +15,8 @@ If styles look out of date while developing (this folder lives in OneDrive, whic
 
 All text, links and images are in [`lib/data.ts`](lib/data.ts):
 
-- `competitions`: hero badges, the climb chart, the medal table and the competition cards
-- `roles`, `chowkpilot`, `radarProject`, `stressProject`, `webProjects`, `skills`, `profiles`
+- `competitions`: the hero badges, the podium chart and the results in Experience
+- `roles`, `chowkpilot`, `llmLab` (the language-model card), `webProjects`, `stressProject`, `skills`, `topics` (the band under the hero), `profiles`
 
 ### Add a certificate
 
@@ -27,6 +27,9 @@ All text, links and images are in [`lib/data.ts`](lib/data.ts):
 
 - **Theme: signal over noise.** Colours follow the magma colour map used for spectrograms (violet, magenta, amber). Gold, silver and bronze are reserved for competition ranks.
 - **Type:** Bricolage Grotesque for display, Geist for text, JetBrains Mono for instrument labels, and Doto (dot-matrix) for the LED rank numerals.
-- **Hero:** `components/spectrogram-field.tsx` draws a live spectrogram; the pointer acts as a transmitter. The name decodes out of noise after the intro (`components/intro.tsx`, shown once per session).
-- **Motion:** scroll reveals are CSS driven (`data-reveal`, switched on by `components/reveal-observer.tsx`), so the page stays readable without JavaScript. All animation follows one switch, `<html data-motion="on|off">` (`components/motion.tsx`). It starts from the system "reduce motion" setting, and the Motion toggle in the header lets visitors override it (remembered in their browser). If animations look frozen on your own machine, check Windows Settings > Accessibility > Visual effects > Animation effects, or use the toggle.
+- **Hero:** `components/spectrogram-field.tsx` draws a live spectrogram; the pointer acts as a transmitter. The greeting cycles through Hello, Salam, Bonjour and Azul, and the name rises letter by letter out of a blur after the intro (`components/intro.tsx`, shown at most once every six hours). On desktop the hero fills the first screen.
+- **Experience:** `components/climb-chart.tsx` plots each podium as an LED module by month and rank. The climb line draws itself and each module lights as the line reaches it; the timing is computed from the line's easing, so the two stay in sync. Every result below the chart carries its evidence: the SNR demo, the Zindi pipeline (`components/stress-flow.tsx`) or the certificate.
+- **Projects:** ChowkPilot with its real SUMO recording and results, the language-model card (a GPT built from scratch beside a QLoRA fine-tune of Qwen2.5-3B, every figure from their READMEs), then the web apps.
+- **Contact:** the same spectrogram, locked onto a clean, repeating radar chirp.
+- **Motion:** there are no fade-ins on scroll. Motion is kept to a few authored moments (the intro, the podium chart, the spectrograms, the radar sweep), so the whole page reads without JavaScript. All animation follows one switch, `<html data-motion="on|off">` (`components/motion.tsx`). It starts from the system "reduce motion" setting, and the Motion toggle in the header lets visitors override it (remembered in their browser). If animations look frozen on your own machine, check Windows Settings > Accessibility > Visual effects > Animation effects, or use the toggle.
 - **Demos:** `components/snr-demo.tsx` is an illustration of a chirp at different noise levels, not challenge data. `public/projects/chowkpilot-demo.mp4` is real SUMO footage from the ChowkPilot repository.

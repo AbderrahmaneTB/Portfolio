@@ -1,198 +1,162 @@
 import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
-import { AutoVideo, CountUp, SpotlightCard, Tilt } from "@/components/interactive"
-import { SnrDemo } from "@/components/snr-demo"
-import { StressFlow } from "@/components/stress-flow"
-import { chowkpilot, radarProject, site, stressProject, webProjects, type Link } from "@/lib/data"
+import { AutoVideo, CountUp } from "@/components/interactive"
+import { LinkPills, Stack } from "@/components/tags"
+import { chowkpilot, llmLab, site, webProjects } from "@/lib/data"
 
-function LinkPills({ links, primaryFirst = false }: { links: Link[]; primaryFirst?: boolean }) {
-  return (
-    <ul className="flex flex-wrap gap-2">
-      {links.map((l, i) => (
-        <li key={l.href}>
-          <a
-            href={l.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={
-              primaryFirst && i === 0
-                ? "inline-flex items-center gap-1.5 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-bg transition-transform hover:-translate-y-0.5"
-                : "glass inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium hover:border-white/25"
-            }
-          >
-            {l.label}
-            <ArrowUpRight className="size-3.5" aria-hidden="true" />
-          </a>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function Stack({ items }: { items: string[] }) {
-  return (
-    <ul className="flex flex-wrap gap-1.5" aria-label="Built with">
-      {items.map((s) => (
-        <li key={s} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[0.72rem] text-muted">
-          {s}
-        </li>
-      ))}
-    </ul>
+/** Keeps hyphenated words such as "fine-tuned" or "Qwen2.5-3B" whole, so a title never breaks at the hyphen */
+function KeepHyphenated({ text }: { text: string }) {
+  return text.split(/(\S*-\S*)/).map((part, i) =>
+    part.includes("-") ? (
+      <span key={i} className="whitespace-nowrap">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
   )
 }
 
 export function Projects() {
   return (
-    <section id="projects" aria-labelledby="projects-title" className="wrap py-28 md:py-36">
-      <div data-reveal className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="section-kicker">02 / Projects</p>
-          <h2 id="projects-title" className="section-title mt-4">
-            Things I’ve <span className="heat-text">built</span>
-          </h2>
-        </div>
-        <p className="max-w-sm text-muted">Models that won on hidden data, and the products around them. Try the demos.</p>
-      </div>
+    <section id="projects" aria-labelledby="projects-title" className="wrap pt-28 md:pt-40">
+      <h2 id="projects-title" className="section-title">
+        Things I’ve built
+      </h2>
+      <p className="mt-6 max-w-xl text-lg text-muted">Products I’ve shipped, and models I’ve trained.</p>
 
-      {/* ChowkPilot */}
-      <div data-reveal className="mt-14">
-        <SpotlightCard className="overflow-hidden rounded-[2rem] p-5 sm:p-6 md:p-10">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-5">
-              <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-xs text-violet-soft">
-                <span className="live-dot" aria-hidden="true" /> {chowkpilot.badge}
+      {/* ChowkPilot: the story beside the recording, then the results and the stack with its links across
+          the whole card. Phones to small laptops stack it, video first. */}
+      <article className="mt-14 grid grid-cols-1 gap-x-12 gap-y-9 rounded-[2rem] border border-line bg-panel/70 p-5 sm:p-7 md:p-10 xl:grid-cols-12">
+        <div className="xl:col-span-5 xl:col-start-1 xl:row-start-1">
+          <h3 className="subhead">{chowkpilot.name}</h3>
+          <p className="mt-2 text-sm text-ink/70">
+            {chowkpilot.badge} hackathon. {chowkpilot.context}
+          </p>
+          <p className="mt-5 max-w-[62ch] text-ink/85">{chowkpilot.description}</p>
+        </div>
+
+        {/* The recording reads like the instrument it came from: both controllers labelled over their half */}
+        <figure className="order-first xl:order-none xl:col-span-7 xl:col-start-6 xl:row-start-1">
+          <div className="overflow-hidden rounded-2xl border border-white/12 bg-[#05040a] shadow-[0_40px_100px_-40px_rgb(224_69_123/0.45)]">
+            <div className="grid grid-cols-2 border-b border-white/10 font-mono text-xs">
+              <span className="flex items-center gap-2 px-4 py-2.5 text-muted">
+                <span aria-hidden="true" className="size-2 rounded-full bg-[#ff5f57]" />
+                Fixed-time plan
               </span>
-              <h3 className="mt-5 font-display text-4xl font-extrabold tracking-tight md:text-5xl">{chowkpilot.name}</h3>
-              <p className="mt-2 text-sm text-muted">{chowkpilot.context}</p>
-              <p className="mt-5 text-pretty text-ink/85">{chowkpilot.description}</p>
-              <dl className="mt-7 grid grid-cols-1 gap-2 min-[440px]:grid-cols-3 min-[440px]:gap-3">
-                {chowkpilot.metrics.map((m) => (
-                  <div key={m.label} className="rounded-2xl border border-white/10 bg-black/30 p-3.5">
-                    <dt className="sr-only">{m.label}</dt>
-                    <dd className="flex items-center gap-4 min-[440px]:block">
-                      <CountUp to={m.value} prefix="−" suffix="%" className="heat-text shrink-0 font-display text-3xl font-extrabold tabular-nums md:text-4xl" />
-                      <span className="block text-sm leading-snug text-muted min-[440px]:mt-1 min-[440px]:text-[0.72rem]">{m.label}</span>
-                    </dd>
+              <span className="flex items-center gap-2 border-l border-white/10 px-4 py-2.5 text-ink">
+                <span aria-hidden="true" className="size-2 rounded-full bg-live" />
+                ChowkPilot
+              </span>
+            </div>
+            <AutoVideo
+              src="/projects/chowkpilot-demo.mp4"
+              poster="/projects/chowkpilot-demo-poster.webp"
+              label="Recorded SUMO simulation at Hyderabad's Hitech City junction: the same peak-hour vehicles under a fixed-time plan on the left and ChowkPilot on the right, which keeps far fewer vehicles stopped."
+              className="block aspect-[1100/518] w-full bg-black"
+            />
+          </div>
+          <figcaption className="mt-3 text-sm text-muted">
+            Real SUMO output at Hitech City, a junction the policy never saw in training. Stopped vehicles show in red.
+          </figcaption>
+        </figure>
+
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-t border-line pt-8 min-[440px]:grid-cols-3 xl:col-span-12 xl:row-start-2">
+          {chowkpilot.metrics.map((m, i) => (
+            <div key={m.label} className="flex items-baseline gap-4 min-[440px]:block">
+              <dt className="sr-only">{m.label}</dt>
+              <dd className="contents">
+                <CountUp
+                  to={m.value}
+                  prefix="−"
+                  suffix="%"
+                  className={`shrink-0 font-display text-4xl font-extrabold tracking-tight tabular-nums md:text-5xl xl:text-6xl ${i === 0 ? "heat-text" : "text-ink"}`}
+                />
+                <span aria-hidden="true" className="block max-w-[15rem] text-sm leading-snug text-muted min-[440px]:mt-2">
+                  {m.label}
+                </span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="flex flex-col gap-6 xl:col-span-12 xl:row-start-3 xl:flex-row xl:items-center xl:justify-between">
+          <Stack items={chowkpilot.stack} />
+          <LinkPills links={chowkpilot.links} />
+        </div>
+      </article>
+
+      {/* Language models: one trained from zero beside one adapted from a 3B base. On wide screens the two
+          halves share row tracks (subgrid), so their sizes, spec sheets and links line up across the card. */}
+      <article aria-labelledby="llm-title" className="mt-6 rounded-[2rem] border border-line bg-panel/70 p-5 sm:p-7 md:p-10">
+        <h3 id="llm-title" className="subhead">
+          {llmLab.name}
+        </h3>
+        <p className="mt-2 max-w-[62ch] text-sm text-ink/70">{llmLab.context}</p>
+
+        <div className="mt-8 grid grid-cols-1 divide-y divide-line lg:grid-cols-2 lg:grid-rows-[repeat(6,auto)] lg:divide-x lg:divide-y-0">
+          {llmLab.projects.map((p, i) => (
+            <div
+              key={p.name}
+              className={`lg:row-span-6 lg:grid lg:grid-rows-subgrid ${i === 0 ? "pb-10 lg:pr-10 lg:pb-0" : "pt-10 lg:pt-0 lg:pl-10"}`}
+            >
+              <h4 className="entry-title">
+                <KeepHyphenated text={p.name} />
+              </h4>
+              <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-display text-5xl font-extrabold tracking-tight md:text-6xl">{p.size.value}</span>
+                <span className="text-sm text-muted">{p.size.label}</span>
+              </p>
+              <p className="mt-5 max-w-[62ch] text-ink/85">{p.description}</p>
+              <dl className="mt-6 text-sm">
+                {p.specs.map((s) => (
+                  <div key={s.label} className="flex items-baseline justify-between gap-4 border-b border-line py-2.5 first:border-t">
+                    <dt className="text-muted">{s.label}</dt>
+                    <dd className="text-right font-mono text-ink tabular-nums">{s.value}</dd>
                   </div>
                 ))}
               </dl>
               <div className="mt-6">
-                <Stack items={chowkpilot.stack} />
+                <Stack items={p.stack} />
               </div>
               <div className="mt-6">
-                <LinkPills links={chowkpilot.links} primaryFirst />
+                <LinkPills links={p.links} />
               </div>
             </div>
-
-            <div className="lg:col-span-7">
-              <Tilt max={4}>
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b0d14] shadow-[0_40px_100px_-40px_rgb(139_92_246/0.7)]">
-                  <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-                    <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-                    <span className="size-2.5 rounded-full bg-[#febc2e]" />
-                    <span className="size-2.5 rounded-full bg-[#28c840]" />
-                    <span className="ml-3 truncate rounded-md bg-white/5 px-3 py-1 font-mono text-[0.7rem] text-muted">
-                      abderrahmanetb.github.io/chowkpilot
-                    </span>
-                  </div>
-                  <AutoVideo
-                    src="/projects/chowkpilot-demo.mp4"
-                    poster="/projects/chowkpilot-demo-poster.webp"
-                    label="Recorded SUMO simulation at Hyderabad's Hitech City junction: the same peak-hour vehicles under a fixed-time plan on the left and ChowkPilot on the right, which keeps far fewer vehicles stopped."
-                    className="block aspect-[1100/518] w-full bg-black"
-                  />
-                </div>
-              </Tilt>
-              <p className="mt-3 text-sm text-dim">
-                Real simulation footage: the same vehicles under a fixed-time plan (left) and ChowkPilot (right).
-              </p>
-            </div>
-          </div>
-        </SpotlightCard>
-      </div>
-
-      {/* Radar + Zindi */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div data-reveal>
-          <SpotlightCard className="flex h-full flex-col rounded-[2rem] p-5 sm:p-6 md:p-8">
-            <span className="glass inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 font-mono text-xs text-gold">
-              {radarProject.badge}
-            </span>
-            <h3 className="mt-5 font-display text-3xl font-extrabold tracking-tight">{radarProject.name}</h3>
-            <p className="mt-4 text-pretty text-muted">{radarProject.description}</p>
-            <div className="mt-7">
-              <SnrDemo />
-            </div>
-            <div className="mt-auto pt-7">
-              <LinkPills links={radarProject.links} />
-            </div>
-          </SpotlightCard>
+          ))}
         </div>
-
-        <div data-reveal style={{ "--d": "120ms" } as React.CSSProperties}>
-          <SpotlightCard className="flex h-full flex-col rounded-[2rem] p-5 sm:p-6 md:p-8">
-            <span className="glass inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 font-mono text-xs text-silver">
-              {stressProject.badge}
-            </span>
-            <h3 className="mt-5 font-display text-3xl font-extrabold tracking-tight">{stressProject.name}</h3>
-            <p className="mt-4 text-pretty text-muted">{stressProject.description}</p>
-            <div className="mt-7">
-              <StressFlow />
-            </div>
-            <div className="mt-6">
-              <Stack items={stressProject.stack} />
-            </div>
-            <div className="mt-auto pt-7">
-              <LinkPills links={stressProject.links} />
-            </div>
-          </SpotlightCard>
-        </div>
-      </div>
+      </article>
 
       {/* Web products */}
-      <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-        {webProjects.map((p, i) => (
-          <div key={p.name} data-reveal style={{ "--d": `${i * 120}ms` } as React.CSSProperties}>
-            <SpotlightCard className="h-full rounded-[2rem] p-5 sm:p-6 md:p-8">
-              <div className="grid grid-cols-1 items-center gap-6 min-[440px]:grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9.5rem_minmax(0,1fr)]">
-                <Tilt max={10} className="mx-auto w-36 min-[440px]:w-auto">
-                  <div className="overflow-hidden rounded-[1.4rem] border-[5px] border-[#1d1a2b] bg-black shadow-[0_30px_60px_-25px_rgb(139_92_246/0.7)]">
-                    <Image src={p.image.src} alt={p.image.alt} width={p.image.width} height={p.image.height} sizes="9.5rem" className="h-auto w-full" />
-                  </div>
-                </Tilt>
-                <div>
-                  <p className="inline-flex items-center gap-2 font-mono text-xs text-muted">
-                    <span aria-hidden="true" className={p.status === "Live" ? "live-dot" : "inline-block size-2 rounded-full bg-amber"} />
-                    {p.status}
-                  </p>
-                  <h3 className="mt-2 font-display text-2xl font-extrabold tracking-tight">{p.name}</h3>
-                  <p className="mt-2 text-sm text-pretty text-muted">{p.description}</p>
-                  <div className="mt-4">
-                    <Stack items={p.stack} />
-                  </div>
-                  <a
-                    href={p.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline decoration-white/25 underline-offset-4 hover:decoration-white"
-                  >
-                    {p.link.label}
-                    <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                  </a>
-                </div>
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {webProjects.map((p) => (
+          <article key={p.name} className="h-full rounded-[2rem] border border-line bg-panel/70 p-5 sm:p-7 md:p-8">
+            <div className="grid grid-cols-1 items-center gap-6 min-[440px]:grid-cols-[7.5rem_minmax(0,1fr)] sm:grid-cols-[9.5rem_minmax(0,1fr)]">
+              <div className="mx-auto w-36 overflow-hidden rounded-[1.4rem] border-[5px] border-[#1d1a2b] bg-black shadow-[0_30px_60px_-25px_rgb(139_92_246/0.6)] min-[440px]:w-auto">
+                <Image src={p.image.src} alt={p.image.alt} width={p.image.width} height={p.image.height} sizes="9.5rem" className="h-auto w-full" />
               </div>
-            </SpotlightCard>
-          </div>
+              <div>
+                <p className="inline-flex items-center gap-2 text-sm text-muted">
+                  <span aria-hidden="true" className={p.status === "Live" ? "live-dot" : "inline-block size-2 rounded-full bg-amber"} />
+                  {p.status}
+                </p>
+                <h3 className="subhead mt-2">{p.name}</h3>
+                <p className="mt-2 text-sm text-muted">{p.description}</p>
+                <div className="mt-4">
+                  <Stack items={p.stack} />
+                </div>
+                <a href={p.link.href} target="_blank" rel="noopener noreferrer" className="btn btn-quiet mt-5">
+                  {p.link.label}
+                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
+          </article>
         ))}
       </div>
 
-      <p data-reveal className="mt-12 text-center">
-        <a
-          href={site.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="glass inline-flex items-center gap-2 rounded-full px-6 py-3.5 font-semibold hover:border-white/25"
-        >
+      <p className="mt-10 text-center">
+        <a href={site.github} target="_blank" rel="noopener noreferrer" className="btn btn-quiet">
           See all my repositories on GitHub
           <ArrowUpRight className="size-4" aria-hidden="true" />
         </a>

@@ -19,8 +19,17 @@ const LINKS = [
 export function SiteNav() {
   const [active, setActive] = useState("home")
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, mass: 0.3 })
+
+  // Once the page moves, a blurred band fades in behind the header so content never runs into the nav
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -43,12 +52,12 @@ export function SiteNav() {
         className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-[linear-gradient(90deg,#8b5cf6,#e0457b,#ffb547)]"
         style={{ scaleX: progress }}
       />
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-        <div className="wrap flex items-center justify-between gap-4 pt-4">
+      <header data-scrolled={scrolled ? "" : undefined} className="site-header pointer-events-none fixed inset-x-0 top-0 z-50">
+        <div className="wrap flex items-center justify-between gap-4 pt-4 pb-3">
           <a
             href="#home"
             aria-label="Abderrahmane Tayeb Boudjema, back to top"
-            className="glass pointer-events-auto flex size-12 items-center justify-center rounded-full"
+            className="glass pointer-events-auto flex size-12 items-center justify-center rounded-full transition-colors hover:border-white/30"
           >
             <PodiumMark className="size-6" />
           </a>
@@ -144,12 +153,12 @@ function MobileMenu({ active, onClose }: { active: string; onClose: () => void }
               <a
                 href={`#${l.id}`}
                 onClick={onClose}
+                aria-current={active === l.id ? "true" : undefined}
                 className={cn(
-                  "flex items-baseline gap-4 border-b border-line py-4 font-display text-4xl font-bold tracking-tight",
+                  "block border-b border-line py-4 font-display text-4xl font-bold tracking-tight",
                   active === l.id ? "text-ink" : "text-muted",
                 )}
               >
-                <span className="font-mono text-xs text-violet-soft">0{i + 1}</span>
                 {l.label}
               </a>
             </motion.li>
@@ -158,7 +167,9 @@ function MobileMenu({ active, onClose }: { active: string; onClose: () => void }
       </nav>
       <div className="wrap pb-10">
         <MotionToggle className="mb-6" />
-        <p className="font-mono text-xs text-muted">{site.email}</p>
+        <a href={`mailto:${site.email}`} className="text-link font-mono text-sm">
+          {site.email}
+        </a>
         <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
           {profiles.map((p) => (
             <li key={p.name}>

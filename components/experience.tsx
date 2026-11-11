@@ -1,8 +1,9 @@
-import { ArrowUpRight } from "lucide-react"
 import { CertificateButton } from "@/components/certificate-button"
-import { ClimbChart } from "@/components/climb-chart"
-import { SpotlightCard } from "@/components/interactive"
-import { competitions, roles, type Competition } from "@/lib/data"
+import { PodiumChart } from "@/components/climb-chart"
+import { SnrDemo } from "@/components/snr-demo"
+import { StressFlow } from "@/components/stress-flow"
+import { LinkPills, Stack } from "@/components/tags"
+import { competitions, roles, stressProject, type Competition } from "@/lib/data"
 
 const suffix = { 1: "st", 2: "nd", 3: "rd" } as const
 const placeWord = { 1: "First", 2: "Second", 3: "Third" } as const
@@ -10,150 +11,114 @@ const ledClass = { 1: "led-gold", 2: "led-silver", 3: "led-bronze" } as const
 
 export function Experience() {
   return (
-    <section id="experience" aria-labelledby="experience-title" className="wrap py-28 md:py-36">
-      <div data-reveal className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="section-kicker">01 / Experience</p>
-          <h2 id="experience-title" className="section-title mt-4">
-            Podium finishes
-            <br />
-            <span className="heat-text">and the work behind them</span>
-          </h2>
-        </div>
-        <p className="max-w-sm text-muted">
-          Four podiums in 2026 across Kaggle, Zindi and university datathons. Every certificate opens full size.
+    <section id="experience" aria-labelledby="experience-title" className="wrap pt-28 md:pt-40">
+      <h2 id="experience-title" className="section-title">
+        Experience
+      </h2>
+
+      <div className="mt-14 grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-12">
+        <h3 className="subhead lg:col-span-3">Roles</h3>
+        <ul className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 lg:col-span-9">
+          {roles.map((r) => (
+            <li key={r.title} className="border-t border-line pt-6">
+              <h4 className="entry-title">{r.title}</h4>
+              <p className="mt-1.5 text-ink/70">{r.org}</p>
+              <p className="mt-3 text-muted">{r.description}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-24 grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-12 md:mt-28">
+        <h3 className="subhead lg:col-span-3">Podium finishes</h3>
+        <p className="max-w-2xl text-lg text-muted lg:col-span-9">
+          Four podiums in 2026, from <span className="font-semibold text-bronze">3rd in May</span> to{" "}
+          <span className="font-semibold text-gold">1st in October</span>, on radar signals, financial stress, breast
+          cancer detection, river forecasting and AI-text detection.
         </p>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <SpotlightCard className="rounded-[1.75rem] p-6 md:p-8 lg:col-span-7">
-          <div data-reveal>
-            <ClimbChart />
-          </div>
-        </SpotlightCard>
-
-        <SpotlightCard className="flex flex-col justify-between rounded-[1.75rem] p-6 md:p-8 lg:col-span-5">
-          <div data-reveal style={{ "--d": "120ms" } as React.CSSProperties}>
-            <p className="font-semibold">Medal table</p>
-            <ul className="mt-6 grid grid-cols-4 gap-2">
-              {competitions.map((c) => (
-                <li key={c.id} className="text-center">
-                  <a href={`#${c.id}`} className="group block">
-                    <span className={`led block text-[clamp(3.5rem,7vw,5.25rem)] ${ledClass[c.rank]}`} aria-hidden="true">
-                      {c.rank}
-                    </span>
-                    <span className="sr-only">
-                      {placeWord[c.rank]} place, {c.event}
-                    </span>
-                    <span aria-hidden="true" className="mt-3 block text-xs text-muted transition-colors group-hover:text-ink">
-                      {c.short}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <p data-reveal className="mt-10 text-pretty text-lg leading-snug" style={{ "--d": "220ms" } as React.CSSProperties}>
-            From <span className="font-semibold text-bronze">3rd in May</span> to{" "}
-            <span className="font-semibold text-gold">1st in October</span>, on radar signals, financial stress, breast
-            cancer detection, river forecasting and AI-text detection.
-          </p>
-        </SpotlightCard>
+      <div className="mt-10 rounded-[1.75rem] border border-line bg-panel/70 p-5 sm:p-7 md:p-9">
+        <PodiumChart />
       </div>
 
-      <ul className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-        {competitions.map((c, i) => (
-          <li key={c.id} data-reveal style={{ "--d": `${(i % 2) * 120}ms` } as React.CSSProperties}>
-            <CompetitionCard competition={c} />
-          </li>
+      <ol className="mt-8 border-t border-line">
+        {competitions.map((c) => (
+          <ResultEntry key={c.id} c={c} />
         ))}
-      </ul>
-
-      <div className="mt-24 grid grid-cols-1 gap-10 lg:grid-cols-12">
-        <div data-reveal className="lg:col-span-4">
-          <h3 className="font-display text-3xl font-bold tracking-tight">Roles</h3>
-          <p className="mt-3 max-w-xs text-muted">Where I ship products alongside the competitions.</p>
-        </div>
-        <ol className="relative space-y-6 lg:col-span-8">
-          {roles.map((r, i) => (
-            <li key={r.title} data-reveal style={{ "--d": `${i * 120}ms` } as React.CSSProperties}>
-              <SpotlightCard className="rounded-[1.5rem] p-6 md:p-7">
-                <div className="flex items-start gap-4">
-                  <span aria-hidden="true" className="mt-1.5 size-2.5 shrink-0 rounded-full bg-violet shadow-[0_0_14px_3px_rgb(139_92_246/0.7)]" />
-                  <div>
-                    <h4 className="font-display text-xl font-bold tracking-tight">{r.title}</h4>
-                    <p className="mt-1 text-sm text-violet-soft">{r.org}</p>
-                    <p className="mt-3 text-pretty text-muted">{r.description}</p>
-                  </div>
-                </div>
-              </SpotlightCard>
-            </li>
-          ))}
-        </ol>
-      </div>
+      </ol>
     </section>
   )
 }
 
-function CompetitionCard({ competition: c }: { competition: Competition }) {
+/** One podium and the work behind it: the story beside its evidence (a demo, a pipeline or the certificate). */
+function ResultEntry({ c }: { c: Competition }) {
+  const evidence =
+    c.id === "synapseon" ? (
+      <SnrDemo />
+    ) : c.id === "zindi-financial-stress" ? (
+      <StressFlow />
+    ) : c.certificate ? (
+      <CertificateButton certificate={c.certificate} />
+    ) : null
+
   return (
-    <SpotlightCard id={c.id} className="flex h-full flex-col rounded-[1.75rem] p-5 sm:p-6 md:p-8">
-      <div className="flex items-start justify-between gap-4">
+    <li
+      id={c.id}
+      className="grid scroll-mt-24 grid-cols-1 gap-x-10 gap-y-7 border-b border-line py-12 md:py-16 lg:grid-cols-[6.5rem_minmax(0,1fr)_minmax(0,1.08fr)]"
+    >
+      <div className="flex items-end gap-5 lg:flex-col lg:items-start lg:gap-4">
         <p className="flex items-start">
           <span className="sr-only">{placeWord[c.rank]} place</span>
-          <span aria-hidden="true" className={`led text-[5.5rem] ${ledClass[c.rank]}`}>
+          <span aria-hidden="true" className={`led text-[5rem] md:text-[6rem] ${ledClass[c.rank]}`}>
             {c.rank}
           </span>
           <span aria-hidden="true" className={`led mt-1 ml-1 text-2xl ${ledClass[c.rank]}`}>
             {suffix[c.rank]}
           </span>
         </p>
-        <time dateTime={c.dateTime} className="glass rounded-full px-3 py-1 font-mono text-xs text-muted">
+        <time dateTime={c.dateTime} className="pb-2 font-mono text-sm text-muted tabular-nums lg:pb-0">
           {c.date}
         </time>
       </div>
 
-      <h3 className="mt-6 font-display text-2xl font-bold tracking-tight md:text-[1.7rem]">{c.event}</h3>
-      <p className="mt-1.5 text-sm text-violet-soft">{c.host}</p>
-      <p className="mt-4 text-pretty text-muted">{c.summary}</p>
+      <div className="min-w-0">
+        <h4 className="entry-title text-[1.75rem] md:text-[2rem]">{c.event}</h4>
+        <p className="mt-2 text-sm text-ink/70">{c.host}</p>
+        <p className="mt-5 max-w-[62ch] text-ink/85">{c.summary}</p>
 
-      {c.challenges && (
-        <ul className="mt-5 space-y-2 text-sm">
-          {c.challenges.map((ch) => (
-            <li key={ch.name} className="flex items-start gap-3">
-              <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-magenta" />
-              {ch.href ? (
-                <a href={ch.href} target="_blank" rel="noopener noreferrer" className="text-ink underline decoration-white/25 underline-offset-4 hover:decoration-white">
-                  {ch.name}
-                </a>
-              ) : (
-                <span className="text-ink/90">{ch.name}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="mt-auto pt-7">
-        {c.certificate && <CertificateButton certificate={c.certificate} />}
-        {c.links && (
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {c.links.map((l) => (
-              <li key={l.href}>
-                <a
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium hover:border-white/25"
-                >
-                  {l.label}
-                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                </a>
+        {c.challenges && (
+          <ul className="mt-4 space-y-1 text-sm" aria-label="Challenges">
+            {c.challenges.map((ch) => (
+              <li key={ch.name} className="flex items-start gap-3">
+                <span aria-hidden="true" className="mt-2.75 size-1.5 shrink-0 rounded-full bg-magenta" />
+                {ch.href ? (
+                  <a href={ch.href} target="_blank" rel="noopener noreferrer" className="text-link py-1">
+                    {ch.name}
+                  </a>
+                ) : (
+                  <span className="py-1 text-ink/90">{ch.name}</span>
+                )}
               </li>
             ))}
           </ul>
         )}
+
+        {c.id === "zindi-financial-stress" && (
+          <div className="mt-6">
+            <Stack items={stressProject.stack} />
+          </div>
+        )}
+
+        {(c.links || (c.certificate && c.id === "synapseon")) && (
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            {c.links && <LinkPills links={c.links} />}
+            {c.certificate && c.id === "synapseon" && <CertificateButton certificate={c.certificate} compact />}
+          </div>
+        )}
       </div>
-    </SpotlightCard>
+
+      <div className="min-w-0">{evidence}</div>
+    </li>
   )
 }

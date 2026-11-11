@@ -41,7 +41,10 @@ export function StressFlow() {
         <span className="text-sm text-muted">Private leaderboard score</span>
         <span className="text-right">
           <CountUp to={0.7357} decimals={4} className="font-display text-3xl font-bold tabular-nums" />
-          <span className="led led-silver ml-3 text-2xl">2nd</span>
+          <span className="sr-only">, </span>
+          <span className="led led-silver ml-3 text-2xl">
+            2nd<span className="sr-only"> place</span>
+          </span>
         </span>
       </figcaption>
     </figure>

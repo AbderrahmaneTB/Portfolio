@@ -8,6 +8,7 @@ import {
   SiFastapi,
   SiFigma,
   SiGithub,
+  SiHuggingface,
   SiJavascript,
   SiMongodb,
   SiMysql,
@@ -47,6 +48,7 @@ export function ProfileIcon({ name, className }: { name: Profile["name"]; classN
 
 const skillIcons: Record<SkillIconName, { Icon: IconType | null; color: string }> = {
   pytorch: { Icon: SiPytorch, color: "#EE4C2C" },
+  huggingface: { Icon: SiHuggingface, color: "#FFD21E" },
   tensorflow: { Icon: SiTensorflow, color: "#FF8F00" },
   scikitlearn: { Icon: SiScikitlearn, color: "#F7931E" },
   lightgbm: { Icon: null, color: "#9BE15D" },

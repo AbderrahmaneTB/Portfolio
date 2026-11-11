@@ -4,44 +4,52 @@ import { AnimatePresence, MotionConfig, motion } from "framer-motion"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { useMotionOn } from "@/components/motion"
 
-const IntroContext = createContext(false)
+type IntroState = {
+  /** The intro has finished, or was skipped */
+  done: boolean
+  /** The intro actually played on this page load, so the hero entrance should run */
+  played: boolean
+}
 
-/** True once the intro has finished (or was skipped). Hero animations wait for it. */
-export function useIntroDone() {
+const IntroContext = createContext<IntroState>({ done: false, played: false })
+
+/** Hero animations wait for `done`, and only run when the intro `played`. */
+export function useIntro() {
   return useContext(IntroContext)
 }
 
 const LOADER_MS = 1700
 
 export function IntroProvider({ children }: { children: React.ReactNode }) {
-  const [done, setDone] = useState(false)
+  const [state, setState] = useState<IntroState>({ done: false, played: false })
   const [mounted, setMounted] = useState(true)
   const motionAllowed = useMotionOn()
 
   useEffect(() => {
-    const root = document.documentElement
-    const finish = () => {
-      delete root.dataset.introPending
-      setDone(true)
-    }
-    if (root.dataset.intro === "seen") {
+    if (document.documentElement.dataset.intro === "seen") {
       setMounted(false)
-      finish()
+      setState({ done: true, played: false })
       return
     }
     const t = window.setTimeout(() => {
       try {
         localStorage.setItem("intro-seen-at", String(Date.now()))
       } catch {}
-      finish()
+      setState({ done: true, played: true })
     }, LOADER_MS)
     return () => window.clearTimeout(t)
   }, [])
 
+  // Lift the hero's hidden state only after the children have rendered their entrance,
+  // so nothing flashes in for a frame before it animates.
+  useEffect(() => {
+    if (state.done) delete document.documentElement.dataset.introPending
+  }, [state.done])
+
   return (
     <MotionConfig reducedMotion={motionAllowed ? "never" : "always"}>
-      <IntroContext.Provider value={done}>
-        <AnimatePresence>{mounted && !done && <IntroLoader key="intro" />}</AnimatePresence>
+      <IntroContext.Provider value={state}>
+        <AnimatePresence>{mounted && !state.done && <IntroLoader key="intro" />}</AnimatePresence>
         {children}
       </IntroContext.Provider>
     </MotionConfig>

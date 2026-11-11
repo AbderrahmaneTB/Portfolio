@@ -4,7 +4,6 @@ import { Hero } from "@/components/hero"
 import { IntroProvider } from "@/components/intro"
 import { Marquee } from "@/components/marquee"
 import { Projects } from "@/components/projects"
-import { RevealObserver } from "@/components/reveal-observer"
 import { SiteNav } from "@/components/site-nav"
 import { Skills } from "@/components/skills"
 
@@ -23,7 +22,6 @@ export default function Home() {
         <Skills />
         <Contact />
       </main>
-      <RevealObserver />
     </IntroProvider>
   )
 }

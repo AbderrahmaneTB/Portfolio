@@ -12,9 +12,8 @@ import {
 } from "framer-motion"
 import { useRef } from "react"
 import { useMotionOn } from "@/components/motion"
-
-const THEMES = ["Machine learning", "Radar signals", "Reinforcement learning", "Gradient boosting", "Full-stack products"]
-const TOOLS = ["PyTorch", "LightGBM", "scikit-learn", "Next.js", "React", "FastAPI", "SUMO", "pandas", "Docker"]
+import { SpectrogramField } from "@/components/spectrogram-field"
+import { topics } from "@/lib/data"
 
 /**
  * A row that drifts on its own and speeds up with scroll velocity.
@@ -66,32 +65,47 @@ function VelocityRow({
   )
 }
 
+// A linear chirp drawn once: frequency rises from left to right, like the ridges in the field behind it
+const CHIRP = Array.from({ length: 49 }, (_, i) => {
+  const t = i / 48
+  const y = 14 - 9 * Math.sin(2 * Math.PI * (0.8 * t + 2.4 * t * t))
+  return `${i ? "L" : "M"}${(t * 64).toFixed(1)} ${y.toFixed(1)}`
+}).join(" ")
+
+function ChirpMark() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 64 28" className="mx-5 h-6 w-14 shrink-0 md:mx-7 md:h-7 md:w-16">
+      <path d={CHIRP} fill="none" stroke="url(#chirp-mark)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** The fields behind this page, carried across a live spectrogram strip like signals in a waterfall. */
 export function Marquee() {
   return (
-    <section
-      aria-label="Topics and tools"
-      className="relative overflow-hidden border-y border-line py-8 [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)] md:py-10"
-    >
-      <VelocityRow baseVelocity={-2.2}>
-        {THEMES.map((w) => (
-          <span key={w} className="flex items-center">
-            <span className="outline-text px-6 font-display text-[clamp(2.4rem,6.4vw,5rem)] leading-none font-extrabold tracking-tight transition-colors duration-300 hover:text-ink">
-              {w}
-            </span>
-            <span aria-hidden="true" className="heat-text text-3xl">
-              ✦
-            </span>
-          </span>
-        ))}
-      </VelocityRow>
-      <div className="mt-4 md:mt-5">
-        <VelocityRow baseVelocity={2.8}>
-          {TOOLS.map((w) => (
-            <span key={w} className="flex items-center">
-              <span className="heat-text px-5 font-display text-[clamp(1.4rem,3.2vw,2.4rem)] leading-tight font-bold tracking-tight">
-                {w}
+    <section aria-label="Fields I’ve worked in" className="relative isolate overflow-hidden border-y border-line">
+      {/* One gradient shared by every chirp mark in the row */}
+      <svg aria-hidden="true" width="0" height="0" className="absolute">
+        <defs>
+          <linearGradient id="chirp-mark" x1="0" x2="1">
+            <stop offset="0" stopColor="#b79cff" />
+            <stop offset="0.5" stopColor="#e0457b" />
+            <stop offset="1" stopColor="#ffb547" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <SpectrogramField
+        maxEmitters={3}
+        className="absolute inset-0 -z-10 h-full w-full opacity-60 [mask-image:linear-gradient(90deg,transparent,#000_18%,#000_82%,transparent)]"
+      />
+      <div className="py-9 [mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)] md:py-12">
+        <VelocityRow baseVelocity={-2}>
+          {topics.map((t) => (
+            <span key={t} className="flex items-center">
+              <span className="font-display text-[clamp(2rem,5.4vw,4.25rem)] leading-none font-extrabold tracking-tight text-ink [text-shadow:0_2px_24px_rgb(7_6_12/0.85)]">
+                {t}
               </span>
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-white/25" />
+              <ChirpMark />
             </span>
           ))}
         </VelocityRow>
